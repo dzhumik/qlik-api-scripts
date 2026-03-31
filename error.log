@@ -23,7 +23,6 @@ Traceback (most recent call last):
   File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\libnClosedException: Connection to rnnClonClosedException: Connection to remote host was lost.
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> ^C
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> 
-
 import requests
 import pandas as pd
 import sys
@@ -66,18 +65,18 @@ def push_worklog(session, issue_key, date_str, start_time, hours, comment):
     }
     r = session.post(wl_url, json=wl_payload)
     if r.status_code in (200, 201):
-        print(f"  ✅ Worklog: {issue_key} | {date_str} | {time_spent} — OK")
+        print(f"  [OK] Worklog: {issue_key} | {date_str} | {time_spent}")
     else:
-        print(f"  ❌ Worklog: {issue_key} | {date_str} — Ошибка {r.status_code}: {r.text[:200]}")
+        print(f"  [FAIL] Worklog: {issue_key} | {date_str} — {r.status_code}: {r.text[:200]}")
         return False
 
     cm_url = COMMENT_API.format(issue_key=issue_key)
     cm_payload = {"body": f"[{date_str}] {comment}"}
     r = session.post(cm_url, json=cm_payload)
     if r.status_code in (200, 201):
-        print(f"  ✅ Comment: {issue_key} | {date_str} — OK")
+        print(f"  [OK] Comment: {issue_key} | {date_str}")
     else:
-        print(f"  ⚠️ Comment: {issue_key} | {date_str} — Ошибка {r.status_code}: {r.text[:200]}")
+        print(f"  [WARN] Comment: {issue_key} | {date_str} — {r.status_code}: {r.text[:200]}")
 
     return True
 
@@ -96,9 +95,9 @@ def main():
 
     r = session.get(f"{JIRA_URL}/rest/api/2/myself")
     if r.status_code != 200:
-        print(f"❌ Не удалось подключиться к Jira: {r.status_code}")
+        print(f"[FAIL] Не удалось подключиться к Jira: {r.status_code}")
         sys.exit(1)
-    print(f"✅ Подключение к Jira: {r.json().get('displayName', 'OK')}\n")
+    print(f"[OK] Подключение: {r.json().get('displayName', 'OK')}\n")
 
     success, fail = 0, 0
     for i, row in df.iterrows():
@@ -115,7 +114,7 @@ def main():
             fail += 1
         print()
 
-    print(f"\nИтого: ✅ {success} | ❌ {fail}")
+    print(f"\nИтого: OK {success} | FAIL {fail}")
 
 
 if __name__ == "__main__":
