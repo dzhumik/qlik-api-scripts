@@ -1,0 +1,25 @@
+
+Подключаемся к приложению:
+ wss://fdata1a003.halykbank.nb:4747/app/af1dae2a-4097-4fd5-a752-f37c7ce593f2
+Traceback (most recent call last):
+  File "\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api\create_master_measures#2.py", line 278, in <module>
+    main()
+  File "\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api\create_master_measures#2.py", line 249, in main
+    engine = QlikEngineClient(TARGET_APP_ID)
+  File "\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api\create_master_measures#2.py", line 94, in __init__
+    self.ws = websocket.create_connection(
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_core.py", line 664, in create_connection
+    websock.connect(url, **options)
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_core.py", line 268, in connect
+    self.handshake_response = handshake(self.sock, url, *addrs, **options)
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_handshake.py", line 66, in handshake
+    status, resp = _get_resp_headers(sock)
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_handshake.py", line 142, in _get_resp_headers
+    status, resp_headers, status_message = read_headers(sock)
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_http.py", line 385, in read_headers
+    line = recv_line(sock)
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_socket.py", line 151, in recv_line
+    c = recv(sock, 1)
+  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\libnClosedException: Connection to rnnClonClosedException: Connection to remote host was lost.
+PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> ^C
+PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> 
