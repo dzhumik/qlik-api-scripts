@@ -23,6 +23,7 @@ Traceback (most recent call last):
   File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\libnClosedException: Connection to rnnClonClosedException: Connection to remote host was lost.
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> ^C
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> 
+
 import requests
 import pandas as pd
 import sys
@@ -53,8 +54,20 @@ def load_excel(filepath):
     return df
 
 
+def clean_date(raw):
+    raw = raw.strip()
+    return raw[:10]
+
+
+def clean_time(raw):
+    raw = raw.strip()
+    if len(raw) >= 8 and raw.count(":") == 2:
+        return raw[:5]
+    return raw
+
+
 def push_worklog(session, issue_key, date_str, start_time, hours, comment):
-    started = f"{date_str}T{start_time}:00.000+0500"
+    started = f"{date_str}T{start_time}:00.000+05:00"
     time_spent = f"{hours}h"
 
     wl_url = WORKLOG_API.format(issue_key=issue_key)
@@ -63,20 +76,23 @@ def push_worklog(session, issue_key, date_str, start_time, hours, comment):
         "timeSpent": time_spent,
         "comment": comment
     }
+
+    print(f"  DEBUG Payload: {json.dumps(wl_payload, ensure_ascii=False)}")
+
     r = session.post(wl_url, json=wl_payload)
     if r.status_code in (200, 201):
-        print(f"  [OK] Worklog: {issue_key} | {date_str} | {time_spent}")
+        print(f"  OK Worklog: {issue_key} | {date_str} | {time_spent}")
     else:
-        print(f"  [FAIL] Worklog: {issue_key} | {date_str} — {r.status_code}: {r.text[:200]}")
+        print(f"  FAIL Worklog: {issue_key} | {date_str} — {r.status_code}: {r.text}")
         return False
 
     cm_url = COMMENT_API.format(issue_key=issue_key)
     cm_payload = {"body": f"[{date_str}] {comment}"}
     r = session.post(cm_url, json=cm_payload)
     if r.status_code in (200, 201):
-        print(f"  [OK] Comment: {issue_key} | {date_str}")
+        print(f"  OK Comment: {issue_key} | {date_str}")
     else:
-        print(f"  [WARN] Comment: {issue_key} | {date_str} — {r.status_code}: {r.text[:200]}")
+        print(f"  FAIL Comment: {issue_key} | {date_str} — {r.status_code}: {r.text}")
 
     return True
 
@@ -102,8 +118,8 @@ def main():
     success, fail = 0, 0
     for i, row in df.iterrows():
         issue = row["Задача"].strip()
-        date = row["Дата"].strip()
-        start = row["Начало"].strip()
+        date = clean_date(row["Дата"])
+        start = clean_time(row["Начало"])
         hours = row["Часы"].strip()
         comment = row["Что сделано"].strip()
 
