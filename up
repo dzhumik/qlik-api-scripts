@@ -1,1 +1,11 @@
+# Добавь в начало скрипта перед подключением:
+import ssl
+import OpenSSL
 
+cert = OpenSSL.crypto.load_certificate(
+    OpenSSL.crypto.FILETYPE_PEM, 
+    open(CLIENT_CERT).read()
+)
+print("Issuer:", cert.get_issuer().CN)
+print("Expires:", cert.get_notAfter().decode())
+print("Subject:", cert.get_subject().CN)
