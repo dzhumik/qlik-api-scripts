@@ -24,8 +24,6 @@ Traceback (most recent call last):
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> ^C
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> 
 
-
-
 import requests
 import pandas as pd
 import sys
