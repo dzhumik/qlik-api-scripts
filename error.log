@@ -23,7 +23,6 @@ Traceback (most recent call last):
   File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\libnClosedException: Connection to rnnClonClosedException: Connection to remote host was lost.
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> ^C
 PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> 
-
 import requests
 import pandas as pd
 import sys
@@ -66,6 +65,47 @@ def clean_time(raw):
     return raw
 
 
+def test_worklog(session, issue_key):
+    url = f"{JIRA_URL}/rest/api/2/issue/{issue_key}/worklog"
+
+    print("=== ТЕСТЫ ===\n")
+
+    payload1 = {"timeSpent": "1h"}
+    r = session.post(url, json=payload1)
+    print(f"Тест 1 (только timeSpent): {r.status_code}")
+    print(f"  Response: {r.text[:500]}\n")
+
+    payload2 = {"timeSpent": "1h"}
+    r = session.post(url + "?adjustEstimate=leave", json=payload2)
+    print(f"Тест 2 (adjustEstimate=leave): {r.status_code}")
+    print(f"  Response: {r.text[:500]}\n")
+
+    payload3 = {"timeSpentSeconds": 3600}
+    r = session.post(url, json=payload3)
+    print(f"Тест 3 (timeSpentSeconds): {r.status_code}")
+    print(f"  Response: {r.text[:500]}\n")
+
+    payload4 = {
+        "started": "2026-03-11T10:00:00.000+0500",
+        "timeSpentSeconds": 28800,
+        "comment": "test"
+    }
+    r = session.post(url, json=payload4)
+    print(f"Тест 4 (+0500 без двоеточия): {r.status_code}")
+    print(f"  Response: {r.text[:500]}\n")
+
+    payload5 = {
+        "started": "2026-03-11T10:00:00.000+05:00",
+        "timeSpentSeconds": 28800,
+        "comment": "test"
+    }
+    r = session.post(url + "?adjustEstimate=leave", json=payload5)
+    print(f"Тест 5 (+05:00, adjustEstimate=leave, seconds): {r.status_code}")
+    print(f"  Response: {r.text[:500]}\n")
+
+    print("=== КОНЕЦ ТЕСТОВ ===")
+
+
 def push_worklog(session, issue_key, date_str, start_time, hours, comment):
     started = f"{date_str}T{start_time}:00.000+05:00"
     time_spent = f"{hours}h"
@@ -76,8 +116,6 @@ def push_worklog(session, issue_key, date_str, start_time, hours, comment):
         "timeSpent": time_spent,
         "comment": comment
     }
-
-    print(f"  DEBUG Payload: {json.dumps(wl_payload, ensure_ascii=False)}")
 
     r = session.post(wl_url, json=wl_payload)
     if r.status_code in (200, 201):
@@ -103,8 +141,6 @@ def main():
     else:
         filepath = sys.argv[1]
 
-    df = load_excel(filepath)
-
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     session.headers.update({"Content-Type": "application/json"})
@@ -114,6 +150,12 @@ def main():
         print(f"[FAIL] Не удалось подключиться к Jira: {r.status_code}")
         sys.exit(1)
     print(f"[OK] Подключение: {r.json().get('displayName', 'OK')}\n")
+
+    # Запуск тестов — после отладки удали эти 2 строки
+    test_worklog(session, "TDP-26337")
+    sys.exit(0)
+
+    df = load_excel(filepath)
 
     success, fail = 0, 0
     for i, row in df.iterrows():
@@ -134,4 +176,5 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
     main()
