@@ -16,36 +16,81 @@
   "locale": "ru_RU",
   "groups": {
     "size": 16,
-    "items": []
+    "items": [
+      {
+        "name": "ADH_URSO_QLIKSENSE",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=ADH_URSO_QLIKSENSE"
+      },
+      {
+        "name": "ChatGPT",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=ChatGPT"
+      },
+      {
+        "name": "Confluence_Фабрика_данных",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Confluence_%D0%A4%D0%B0%D0%B1%D1%80%D0%B8%D0%BA%D0%B0_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85"
+      },
+      {
+        "name": "ISA Group expanded access",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=ISA+Group+expanded+access"
+      },
+      {
+        "name": "JIRA-LDAP-HALYK-USERS",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=JIRA-LDAP-HALYK-USERS"
+      },
+      {
+        "name": "Qlik BI Team",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Qlik+BI+Team"
+      },
+      {
+        "name": "Qlik Sense_Developers",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Qlik+Sense_Developers"
+      },
+      {
+        "name": "Users-Citrix-Policy-Graphics-Win11",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Users-Citrix-Policy-Graphics-Win11"
+      },
+      {
+        "name": "documentum",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=documentum"
+      },
+      {
+        "name": "jira-software-users",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=jira-software-users"
+      },
+      {
+        "name": "ДТПД Qlik",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%94%D0%A2%D0%9F%D0%94+Qlik"
+      },
+      {
+        "name": "Дашборд ДТПД",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%94%D0%B0%D1%88%D0%B1%D0%BE%D1%80%D0%B4+%D0%94%D0%A2%D0%9F%D0%94"
+      },
+      {
+        "name": "Доступ к внешней почте ЦО",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%94%D0%BE%D1%81%D1%82%D1%83%D0%BF+%D0%BA+%D0%B2%D0%BD%D0%B5%D1%88%D0%BD%D0%B5%D0%B9+%D0%BF%D0%BE%D1%87%D1%82%D0%B5+%D0%A6%D0%9E"
+      },
+      {
+        "name": "Управление развития корпоративной отчётности",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5+%D1%80%D0%B0%D0%B7%D0%B2%D0%B8%D1%82%D0%B8%D1%8F+%D0%BA%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D0%B9+%D0%BE%D1%82%D1%87%D1%91%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8"
+      },
+      {
+        "name": "Управление развития систем отчётности",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5+%D1%80%D0%B0%D0%B7%D0%B2%D0%B8%D1%82%D0%B8%D1%8F+%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC+%D0%BE%D1%82%D1%87%D1%91%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8"
+      },
+      {
+        "name": "ЦО Сотрудники",
+        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%A6%D0%9E+%D0%A1%D0%BE%D1%82%D1%80%D1%83%D0%B4%D0%BD%D0%B8%D0%BA%D0%B8"
+      }
+    ]
   },
   "applicationRoles": {
     "size": 1,
-    "items": []
+    "items": [
+      {
+        "key": "jira-software",
+        "name": "Jira Software"
+      }
+    ]
   },
   "expand": "groups,applicationRoles"
 }
-
-
-
-
-
-def push_worklog(session, issue_key, date_str, start_time, hours, comment):
-    started = f"{date_str}T{start_time}:00.000+05:00"
-    time_spent = f"{hours}h"
-
-    wl_url = WORKLOG_API.format(issue_key=issue_key)
-    
-    # Тест 1: без комментария
-    wl_payload = {
-        "started": started,
-        "timeSpent": time_spent
-    }
-    
-    print(f"  DEBUG payload: {json.dumps(wl_payload, ensure_ascii=False)}")
-    r = session.post(wl_url, json=wl_payload)
-    print(f"  DEBUG response: {r.status_code} — {r.text[:500]}")
-    
-    if r.status_code in (200, 201):
-        print(f"  [OK] {issue_key} | {date_str}")
-        return True
-    return False
