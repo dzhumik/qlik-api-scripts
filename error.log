@@ -1,180 +1,26 @@
-
-Подключаемся к приложению:
- wss://fdata1a003.halykbank.nb:4747/app/af1dae2a-4097-4fd5-a752-f37c7ce593f2
-Traceback (most recent call last):
-  File "\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api\create_master_measures#2.py", line 278, in <module>
-    main()
-  File "\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api\create_master_measures#2.py", line 249, in main
-    engine = QlikEngineClient(TARGET_APP_ID)
-  File "\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api\create_master_measures#2.py", line 94, in __init__
-    self.ws = websocket.create_connection(
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_core.py", line 664, in create_connection
-    websock.connect(url, **options)
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_core.py", line 268, in connect
-    self.handshake_response = handshake(self.sock, url, *addrs, **options)
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_handshake.py", line 66, in handshake
-    status, resp = _get_resp_headers(sock)
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_handshake.py", line 142, in _get_resp_headers
-    status, resp_headers, status_message = read_headers(sock)
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_http.py", line 385, in read_headers
-    line = recv_line(sock)
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\lib\site-packages\websocket\_socket.py", line 151, in recv_line
-    c = recv(sock, 1)
-  File "C:\Users\00060961\AppData\Local\Programs\Python\Python39\libnClosedException: Connection to rnnClonClosedException: Connection to remote host was lost.
-PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> ^C
-PS Microsoft.PowerShell.Core\FileSystem::\\halykbank.nb\narbank\NetApp\SelfserviceBI_QVD\Департамент\ДТПД\УРСО\SSBI PilRoJECt\master_measures_api> 
-import requests
-import pandas as pd
-import sys
-import json
-from datetime import datetime
-
-# ============================================================
-# НАСТРОЙКИ
-# ============================================================
-JIRA_URL = "https://jira.halykbank.kz"
-USERNAME = "00060961"
-PASSWORD = "april1100#1100#"
-DEFAULT_FILE = "jira_report_template.xlsx"
-# ============================================================
-
-WORKLOG_API = f"{JIRA_URL}/rest/api/2/issue/{{issue_key}}/worklog"
-COMMENT_API = f"{JIRA_URL}/rest/api/2/issue/{{issue_key}}/comment"
-
-
-def load_excel(filepath):
-    df = pd.read_excel(filepath, dtype=str)
-    df.columns = df.columns.str.strip()
-    required = ["Задача", "Дата", "Начало", "Часы", "Что сделано"]
-    missing = [c for c in required if c not in df.columns]
-    if missing:
-        print(f"Ошибка: в Excel не хватает колонок: {missing}")
-        sys.exit(1)
-    return df
-
-
-def clean_date(raw):
-    raw = raw.strip()
-    return raw[:10]
-
-
-def clean_time(raw):
-    raw = raw.strip()
-    if len(raw) >= 8 and raw.count(":") == 2:
-        return raw[:5]
-    return raw
-
-
-def test_worklog(session, issue_key):
-    url = f"{JIRA_URL}/rest/api/2/issue/{issue_key}/worklog"
-
-    print("=== ТЕСТЫ ===\n")
-
-    payload1 = {"timeSpent": "1h"}
-    r = session.post(url, json=payload1)
-    print(f"Тест 1 (только timeSpent): {r.status_code}")
-    print(f"  Response: {r.text[:500]}\n")
-
-    payload2 = {"timeSpent": "1h"}
-    r = session.post(url + "?adjustEstimate=leave", json=payload2)
-    print(f"Тест 2 (adjustEstimate=leave): {r.status_code}")
-    print(f"  Response: {r.text[:500]}\n")
-
-    payload3 = {"timeSpentSeconds": 3600}
-    r = session.post(url, json=payload3)
-    print(f"Тест 3 (timeSpentSeconds): {r.status_code}")
-    print(f"  Response: {r.text[:500]}\n")
-
-    payload4 = {
-        "started": "2026-03-11T10:00:00.000+0500",
-        "timeSpentSeconds": 28800,
-        "comment": "test"
-    }
-    r = session.post(url, json=payload4)
-    print(f"Тест 4 (+0500 без двоеточия): {r.status_code}")
-    print(f"  Response: {r.text[:500]}\n")
-
-    payload5 = {
-        "started": "2026-03-11T10:00:00.000+05:00",
-        "timeSpentSeconds": 28800,
-        "comment": "test"
-    }
-    r = session.post(url + "?adjustEstimate=leave", json=payload5)
-    print(f"Тест 5 (+05:00, adjustEstimate=leave, seconds): {r.status_code}")
-    print(f"  Response: {r.text[:500]}\n")
-
-    print("=== КОНЕЦ ТЕСТОВ ===")
-
-
-def push_worklog(session, issue_key, date_str, start_time, hours, comment):
-    started = f"{date_str}T{start_time}:00.000+05:00"
-    time_spent = f"{hours}h"
-
-    wl_url = WORKLOG_API.format(issue_key=issue_key)
-    wl_payload = {
-        "started": started,
-        "timeSpent": time_spent,
-        "comment": comment
-    }
-
-    r = session.post(wl_url, json=wl_payload)
-    if r.status_code in (200, 201):
-        print(f"  OK Worklog: {issue_key} | {date_str} | {time_spent}")
-    else:
-        print(f"  FAIL Worklog: {issue_key} | {date_str} — {r.status_code}: {r.text}")
-        return False
-
-    cm_url = COMMENT_API.format(issue_key=issue_key)
-    cm_payload = {"body": f"[{date_str}] {comment}"}
-    r = session.post(cm_url, json=cm_payload)
-    if r.status_code in (200, 201):
-        print(f"  OK Comment: {issue_key} | {date_str}")
-    else:
-        print(f"  FAIL Comment: {issue_key} | {date_str} — {r.status_code}: {r.text}")
-
-    return True
-
-
-def main():
-    if len(sys.argv) < 2:
-        filepath = DEFAULT_FILE
-    else:
-        filepath = sys.argv[1]
-
-    session = requests.Session()
-    session.auth = (USERNAME, PASSWORD)
-    session.headers.update({"Content-Type": "application/json"})
-
-    r = session.get(f"{JIRA_URL}/rest/api/2/myself")
-    if r.status_code != 200:
-        print(f"[FAIL] Не удалось подключиться к Jira: {r.status_code}")
-        sys.exit(1)
-    print(f"[OK] Подключение: {r.json().get('displayName', 'OK')}\n")
-
-    # Запуск тестов — после отладки удали эти 2 строки
-    test_worklog(session, "TDP-26337")
-    sys.exit(0)
-
-    df = load_excel(filepath)
-
-    success, fail = 0, 0
-    for i, row in df.iterrows():
-        issue = row["Задача"].strip()
-        date = clean_date(row["Дата"])
-        start = clean_time(row["Начало"])
-        hours = row["Часы"].strip()
-        comment = row["Что сделано"].strip()
-
-        print(f"[{i+1}/{len(df)}] {issue} — {date}")
-        if push_worklog(session, issue, date, start, hours, comment):
-            success += 1
-        else:
-            fail += 1
-        print()
-
-    print(f"\nИтого: OK {success} | FAIL {fail}")
-
-
-if __name__ == "__main__":
-    main()
-    main()
+{
+  "self": "https://jira.halykbank.kz/rest/api/2/user?username=00060961",
+  "key": "JIRAUSER83794",
+  "name": "00060961",
+  "emailAddress": "JymabayA@halykbank.kz",
+  "avatarUrls": {
+    "48x48": "https://jira.halykbank.kz/secure/useravatar?ownerId=JIRAUSER83794&avatarId=35301",
+    "24x24": "https://jira.halykbank.kz/secure/useravatar?size=small&ownerId=JIRAUSER83794&avatarId=35301",
+    "16x16": "https://jira.halykbank.kz/secure/useravatar?size=xsmall&ownerId=JIRAUSER83794&avatarId=35301",
+    "32x32": "https://jira.halykbank.kz/secure/useravatar?size=medium&ownerId=JIRAUSER83794&avatarId=35301"
+  },
+  "displayName": "Азаматов Жумабай",
+  "active": true,
+  "deleted": false,
+  "timeZone": "Asia/Qyzylorda",
+  "locale": "ru_RU",
+  "groups": {
+    "size": 16,
+    "items": []
+  },
+  "applicationRoles": {
+    "size": 1,
+    "items": []
+  },
+  "expand": "groups,applicationRoles"
+}
