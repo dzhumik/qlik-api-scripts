@@ -24,3 +24,28 @@
   },
   "expand": "groups,applicationRoles"
 }
+
+
+
+
+
+def push_worklog(session, issue_key, date_str, start_time, hours, comment):
+    started = f"{date_str}T{start_time}:00.000+05:00"
+    time_spent = f"{hours}h"
+
+    wl_url = WORKLOG_API.format(issue_key=issue_key)
+    
+    # Тест 1: без комментария
+    wl_payload = {
+        "started": started,
+        "timeSpent": time_spent
+    }
+    
+    print(f"  DEBUG payload: {json.dumps(wl_payload, ensure_ascii=False)}")
+    r = session.post(wl_url, json=wl_payload)
+    print(f"  DEBUG response: {r.status_code} — {r.text[:500]}")
+    
+    if r.status_code in (200, 201):
+        print(f"  [OK] {issue_key} | {date_str}")
+        return True
+    return False
