@@ -1,20 +1,292 @@
-import json
-import ssl
+# -*- coding: utf-8 -*-
+"""
+Capacity Analyzer Usage - Branch Directors Report
+Halyk Bank, DTPD - Self-Service BI
+
+Скрипт получает список пользователей с Custom Property UserGroup=branch_directors
+и выгружает их потребление Analyzer Capacity (минуты) за текущий и прошлый месяц.
+
+Положить рядом с create_master_measures.py - использует ту же папку certificate/
+"""
+
+import requests
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional
+import urllib3
+import csv
+import sys
 
-import pandas as pd
-import websocket
-import OpenSSL
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# =====================================================================
+# НАСТРОЙКИ
+# =====================================================================
 
-
-# НАСТРОЙКИ ДЛЯ QLIK SENSE ENTERPRISE
+# Qlik Sense Enterprise
 QLIK_SERVER = "fdata1a003.halykbank.nb"
-QLIK_USER = "UserDirectory=UNIVERSAL;UserId=00060961"
+QLIK_USER   = "UserDirectory=UNIVERSAL;UserId=00060961"
 
-# Сертификаты валидны до 2031!
+# Сертификаты (валидны до 2031) - папка certificate/ рядом со скриптом
 BASE_DIR    = Path(__file__).parent
-CLIENT_CERT = str(BASE_DIR/"certificate"/"client.pem")
-CLIENT_KEY  = str(BASE_DIR/"certificate"/"client_key.pem")
-ROOT_CERT   = str(BASE_DIR/"certificate"/"root.pem")
+CLIENT_CERT = str(BASE_DIR / "certificate" / "client.pem")
+CLIENT_KEY  = str(BASE_DIR / "certificate" / "client_key.pem")
+ROOT_CERT   = str(BASE_DIR / "certificate" / "root.pem")
+
+# Custom Property для фильтрации директоров
+CUSTOM_PROPERTY_NAME  = "UserGroup"
+CUSTOM_PROPERTY_VALUE = "branch_directors"
+
+# XRF-ключ
+XRFKEY = "0123456789abcdef"
+
+# =====================================================================
+
+HEADERS = {
+    "X-Qlik-Xrfkey": XRFKEY,
+    "X-Qlik-User": QLIK_USER,
+    "Content-Type": "application/json"
+}
+PARAMS = {"xrfkey": XRFKEY}
+
+QLIK_URL = f"https://{QLIK_SERVER}:4242/qrs"
+
+
+def qrs_get(endpoint, extra_params=None):
+    url = f"{QLIK_URL}/{endpoint}"
+    params = dict(PARAMS)
+    if extra_params:
+        params.update(extra_params)
+    
+    try:
+        response = requests.get(
+            url,
+            headers=HEADERS,
+            params=params,
+            cert=(CLIENT_CERT, CLIENT_KEY),
+            verify=ROOT_CERT,
+            timeout=60
+        )
+        return response
+    except requests.exceptions.SSLError as e:
+        print(f"\n[SSL ERROR] Проверь сертификаты в папке certificate/")
+        print(f"  Подробности: {e}")
+        sys.exit(1)
+    except requests.exceptions.ConnectionError as e:
+        print(f"\n[CONNECTION ERROR] Не могу достучаться до {QLIK_SERVER}:4242")
+        print(f"  Подробности: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"\n[CERTIFICATE NOT FOUND] {e}")
+        print(f"  Проверь, что файлы лежат в: {BASE_DIR / 'certificate'}")
+        sys.exit(1)
+
+
+def get_branch_directors():
+    print(f"[1/3] Получаем директоров филиалов (Custom Property {CUSTOM_PROPERTY_NAME}={CUSTOM_PROPERTY_VALUE})...")
+    
+    filter_str = f"customProperties.value eq '{CUSTOM_PROPERTY_VALUE}'"
+    response = qrs_get("user/full", {"filter": filter_str})
+    
+    if response.status_code != 200:
+        print(f"  Ошибка {response.status_code}: {response.text[:300]}")
+        sys.exit(1)
+    
+    users = response.json()
+    
+    # Точная фильтрация по имени Custom Property
+    directors = []
+    for u in users:
+        for cp in u.get("customProperties", []):
+            cp_name = cp.get("definition", {}).get("name", "")
+            cp_value = cp.get("value", "")
+            if cp_name == CUSTOM_PROPERTY_NAME and cp_value == CUSTOM_PROPERTY_VALUE:
+                directors.append(u)
+                break
+    
+    print(f"  Найдено директоров: {len(directors)}")
+    
+    if not directors:
+        print("  ВНИМАНИЕ: Не найдено ни одного пользователя с этим Custom Property.")
+        print(f"  Проверь в QMC: Users -> любой директор -> Custom properties -> {CUSTOM_PROPERTY_NAME}={CUSTOM_PROPERTY_VALUE}")
+        sys.exit(0)
+    
+    return directors
+
+
+def get_capacity_usage():
+    print(f"[2/3] Получаем данные потребления Analyzer Capacity...")
+    
+    # Пробуем несколько endpoint'ов - в разных версиях QSE называются по-разному
+    endpoints = [
+        "license/analyzertimeaccessusage/full",
+        "license/loginaccessusage/full",
+    ]
+    
+    for ep in endpoints:
+        response = qrs_get(ep)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"  Endpoint: /qrs/{ep}")
+            print(f"  Записей о потреблении: {len(data)}")
+            return data
+        else:
+            print(f"  Endpoint /qrs/{ep} вернул {response.status_code}")
+    
+    print(f"  ОШИБКА: ни один endpoint не сработал.")
+    print(f"  Возможно, у учётки {QLIK_USER} нет прав RootAdmin.")
+    sys.exit(1)
+
+
+def aggregate_usage(directors, usage_records):
+    print(f"[3/3] Анализируем данные...")
+    
+    director_ids = {u["id"]: f"{u['userDirectory']}\\{u['userId']}" for u in directors}
+    director_names = {u["id"]: u.get("name") or u.get("userId", "") for u in directors}
+    
+    now = datetime.utcnow()
+    month_start = datetime(now.year, now.month, 1)
+    prev_month_start = (month_start - timedelta(days=1)).replace(day=1)
+    
+    usage = {}
+    
+    for record in usage_records:
+        user_obj = record.get("user", {})
+        user_id = user_obj.get("id") if isinstance(user_obj, dict) else None
+        
+        if not user_id or user_id not in director_ids:
+            continue
+        
+        used_str = record.get("used") or record.get("usedTime") or record.get("loggedDate")
+        if not used_str:
+            continue
+        
+        try:
+            used_time = datetime.fromisoformat(used_str.replace("Z", "+00:00")).replace(tzinfo=None)
+        except (ValueError, AttributeError):
+            continue
+        
+        minutes = record.get("minutesUsed", record.get("minutes", 1))
+        
+        if user_id not in usage:
+            usage[user_id] = {
+                "current": 0,
+                "previous": 0,
+                "name": director_names[user_id],
+                "login": director_ids[user_id],
+                "last_login": None
+            }
+        
+        if used_time >= month_start:
+            usage[user_id]["current"] += minutes
+        elif used_time >= prev_month_start:
+            usage[user_id]["previous"] += minutes
+        
+        if not usage[user_id]["last_login"] or used_time > usage[user_id]["last_login"]:
+            usage[user_id]["last_login"] = used_time
+    
+    # Добавляем тех, кто вообще не использовал
+    for uid, login in director_ids.items():
+        if uid not in usage:
+            usage[uid] = {
+                "current": 0,
+                "previous": 0,
+                "name": director_names[uid],
+                "login": login,
+                "last_login": None
+            }
+    
+    return usage, month_start, prev_month_start
+
+
+def print_report(usage, month_start, prev_month_start):
+    print("\n" + "=" * 110)
+    print("ПОТРЕБЛЕНИЕ ANALYZER CAPACITY ДИРЕКТОРАМИ ФИЛИАЛОВ".center(110))
+    print(f"Текущий: {month_start.strftime('%B %Y')}  |  Прошлый: {prev_month_start.strftime('%B %Y')}".center(110))
+    print("=" * 110)
+    print(f"  {'Логин':<35} {'ФИО':<35} {'Пред.мес':>10} {'Тек.мес':>10} {'Посл.вход':>12}")
+    print("-" * 110)
+    
+    sorted_users = sorted(usage.values(), key=lambda x: -x["current"])
+    
+    total_prev = 0
+    total_curr = 0
+    active_users = 0
+    inactive_users = 0
+    
+    for u in sorted_users:
+        last = u["last_login"].strftime("%d.%m.%Y") if u["last_login"] else "никогда"
+        active = u["current"] > 0
+        marker = " " if active else "*"
+        
+        print(f"{marker} {u['login']:<35} {u['name'][:34]:<35} {u['previous']:>8} m {u['current']:>8} m {last:>12}")
+        
+        total_prev += u["previous"]
+        total_curr += u["current"]
+        if active:
+            active_users += 1
+        else:
+            inactive_users += 1
+    
+    print("-" * 110)
+    print(f"  {'ИТОГО:':<71} {total_prev:>8} m {total_curr:>8} m")
+    print(f"  {'В часах:':<71} {total_prev/60:>8.1f} h {total_curr/60:>8.1f} h")
+    print()
+    print(f"  Активных в текущем месяце: {active_users}")
+    print(f"  Не использовали лицензию:  {inactive_users}  (отмечены * слева)")
+    print("=" * 110)
+
+
+def save_csv(usage, month_start, prev_month_start):
+    filename = f"capacity_directors_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+    filepath = BASE_DIR / filename
+    
+    with open(filepath, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f, delimiter=";")
+        writer.writerow([
+            "Логин",
+            "ФИО",
+            f"Прошлый месяц ({prev_month_start.strftime('%m.%Y')}), мин",
+            f"Текущий месяц ({month_start.strftime('%m.%Y')}), мин",
+            "Текущий месяц, часы",
+            "Последний вход",
+            "Использовал в текущем месяце"
+        ])
+        
+        sorted_users = sorted(usage.values(), key=lambda x: -x["current"])
+        
+        for u in sorted_users:
+            last = u["last_login"].strftime("%d.%m.%Y %H:%M") if u["last_login"] else ""
+            writer.writerow([
+                u["login"],
+                u["name"],
+                u["previous"],
+                u["current"],
+                round(u["current"] / 60, 2),
+                last,
+                "Да" if u["current"] > 0 else "Нет"
+            ])
+    
+    print(f"\nCSV сохранён: {filepath}")
+    return filepath
+
+
+def main():
+    print("=" * 110)
+    print(f"  Capacity Analyzer Usage Report  |  {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+    print(f"  Сервер: {QLIK_SERVER}")
+    print(f"  Пользователь: {QLIK_USER}")
+    print("=" * 110)
+    print()
+    
+    directors = get_branch_directors()
+    usage_records = get_capacity_usage()
+    usage, month_start, prev_month_start = aggregate_usage(directors, usage_records)
+    
+    print_report(usage, month_start, prev_month_start)
+    save_csv(usage, month_start, prev_month_start)
+    
+    print("\nГотово.")
+
+
+if __name__ == "__main__":
+    main()
