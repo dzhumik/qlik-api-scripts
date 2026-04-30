@@ -1,96 +1,303 @@
-{
-  "self": "https://jira.halykbank.kz/rest/api/2/user?username=00060961",
-  "key": "JIRAUSER83794",
-  "name": "00060961",
-  "emailAddress": "JymabayA@halykbank.kz",
-  "avatarUrls": {
-    "48x48": "https://jira.halykbank.kz/secure/useravatar?ownerId=JIRAUSER83794&avatarId=35301",
-    "24x24": "https://jira.halykbank.kz/secure/useravatar?size=small&ownerId=JIRAUSER83794&avatarId=35301",
-    "16x16": "https://jira.halykbank.kz/secure/useravatar?size=xsmall&ownerId=JIRAUSER83794&avatarId=35301",
-    "32x32": "https://jira.halykbank.kz/secure/useravatar?size=medium&ownerId=JIRAUSER83794&avatarId=35301"
-  },
-  "displayName": "Азаматов Жумабай",
-  "active": true,
-  "deleted": false,
-  "timeZone": "Asia/Qyzylorda",
-  "locale": "ru_RU",
-  "groups": {
-    "size": 16,
-    "items": [
-      {
-        "name": "ADH_URSO_QLIKSENSE",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=ADH_URSO_QLIKSENSE"
-      },
-      {
-        "name": "ChatGPT",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=ChatGPT"
-      },
-      {
-        "name": "Confluence_Фабрика_данных",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Confluence_%D0%A4%D0%B0%D0%B1%D1%80%D0%B8%D0%BA%D0%B0_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85"
-      },
-      {
-        "name": "ISA Group expanded access",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=ISA+Group+expanded+access"
-      },
-      {
-        "name": "JIRA-LDAP-HALYK-USERS",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=JIRA-LDAP-HALYK-USERS"
-      },
-      {
-        "name": "Qlik BI Team",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Qlik+BI+Team"
-      },
-      {
-        "name": "Qlik Sense_Developers",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Qlik+Sense_Developers"
-      },
-      {
-        "name": "Users-Citrix-Policy-Graphics-Win11",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=Users-Citrix-Policy-Graphics-Win11"
-      },
-      {
-        "name": "documentum",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=documentum"
-      },
-      {
-        "name": "jira-software-users",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=jira-software-users"
-      },
-      {
-        "name": "ДТПД Qlik",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%94%D0%A2%D0%9F%D0%94+Qlik"
-      },
-      {
-        "name": "Дашборд ДТПД",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%94%D0%B0%D1%88%D0%B1%D0%BE%D1%80%D0%B4+%D0%94%D0%A2%D0%9F%D0%94"
-      },
-      {
-        "name": "Доступ к внешней почте ЦО",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%94%D0%BE%D1%81%D1%82%D1%83%D0%BF+%D0%BA+%D0%B2%D0%BD%D0%B5%D1%88%D0%BD%D0%B5%D0%B9+%D0%BF%D0%BE%D1%87%D1%82%D0%B5+%D0%A6%D0%9E"
-      },
-      {
-        "name": "Управление развития корпоративной отчётности",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5+%D1%80%D0%B0%D0%B7%D0%B2%D0%B8%D1%82%D0%B8%D1%8F+%D0%BA%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D0%B9+%D0%BE%D1%82%D1%87%D1%91%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8"
-      },
-      {
-        "name": "Управление развития систем отчётности",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5+%D1%80%D0%B0%D0%B7%D0%B2%D0%B8%D1%82%D0%B8%D1%8F+%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC+%D0%BE%D1%82%D1%87%D1%91%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8"
-      },
-      {
-        "name": "ЦО Сотрудники",
-        "self": "https://jira.halykbank.kz/rest/api/2/group?groupname=%D0%A6%D0%9E+%D0%A1%D0%BE%D1%82%D1%80%D1%83%D0%B4%D0%BD%D0%B8%D0%BA%D0%B8"
-      }
-    ]
-  },
-  "applicationRoles": {
-    "size": 1,
-    "items": [
-      {
-        "key": "jira-software",
-        "name": "Jira Software"
-      }
-    ]
-  },
-  "expand": "groups,applicationRoles"
+# -*- coding: utf-8 -*-
+"""
+Capacity Analyzer Usage - Branch Directors Report
+Halyk Bank, DTPD - Self-Service BI
+
+Скрипт получает список пользователей с Custom Property UserGroup=branch_directors
+и выгружает их потребление Analyzer Capacity (минуты) за текущий и прошлый месяц.
+
+Результат: CSV-файл + вывод в консоль.
+
+Требования:
+    pip install requests
+"""
+
+import requests
+from datetime import datetime, timedelta
+import urllib3
+import csv
+import sys
+import os
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# =====================================================================
+# НАСТРОЙКИ - ЗАПОЛНИТЬ ПЕРЕД ЗАПУСКОМ
+# =====================================================================
+
+# Адрес твоего Qlik Sense сервера (центральная нода)
+QLIK_HOST = "https://qlik.halykbank.kz"
+
+# Путь к сертификатам (PEM-файлы из QMC)
+CERT_PATH = r"C:\certs\client.pem"
+KEY_PATH  = r"C:\certs\client_key.pem"
+ROOT_PATH = r"C:\certs\root.pem"
+
+# Учётка для подключения к QRS API
+USER_DIRECTORY = "INTERNAL"
+USER_ID        = "sa_repository"
+
+# Имя Custom Property и значение
+CUSTOM_PROPERTY_NAME  = "UserGroup"
+CUSTOM_PROPERTY_VALUE = "branch_directors"
+
+# XRF-ключ (любая 16-символьная строка)
+XRFKEY = "0123456789abcdef"
+
+# Папка для сохранения отчёта (по умолчанию рядом со скриптом)
+OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# =====================================================================
+# КОНЕЦ НАСТРОЕК
+# =====================================================================
+
+
+HEADERS = {
+    "X-Qlik-Xrfkey": XRFKEY,
+    "X-Qlik-User": f"UserDirectory={USER_DIRECTORY};UserId={USER_ID}",
+    "Content-Type": "application/json"
 }
+PARAMS = {"xrfkey": XRFKEY}
+
+
+def qrs_get(endpoint, extra_params=None):
+    """Универсальный GET-запрос к QRS API."""
+    url = f"{QLIK_HOST}:4242/qrs/{endpoint}"
+    params = dict(PARAMS)
+    if extra_params:
+        params.update(extra_params)
+    
+    try:
+        response = requests.get(
+            url,
+            headers=HEADERS,
+            params=params,
+            cert=(CERT_PATH, KEY_PATH),
+            verify=ROOT_PATH,
+            timeout=60
+        )
+        return response
+    except requests.exceptions.SSLError as e:
+        print(f"[SSL ERROR] Проверь сертификаты: {e}")
+        sys.exit(1)
+    except requests.exceptions.ConnectionError as e:
+        print(f"[CONNECTION ERROR] Не могу достучаться до {QLIK_HOST}:4242")
+        print(f"   Подробности: {e}")
+        sys.exit(1)
+
+
+def get_branch_directors():
+    """Получает список пользователей с Custom Property UserGroup=branch_directors."""
+    print(f"[1/3] Получаем директоров филиалов (Custom Property {CUSTOM_PROPERTY_NAME}={CUSTOM_PROPERTY_VALUE})...")
+    
+    filter_str = f"customProperties.value eq '{CUSTOM_PROPERTY_VALUE}'"
+    response = qrs_get("user/full", {"filter": filter_str})
+    
+    if response.status_code != 200:
+        print(f"   Ошибка {response.status_code}: {response.text[:300]}")
+        sys.exit(1)
+    
+    users = response.json()
+    
+    # Фильтруем дополнительно по имени Custom Property (на случай если есть другие CP с тем же значением)
+    directors = []
+    for u in users:
+        for cp in u.get("customProperties", []):
+            cp_name = cp.get("definition", {}).get("name", "")
+            cp_value = cp.get("value", "")
+            if cp_name == CUSTOM_PROPERTY_NAME and cp_value == CUSTOM_PROPERTY_VALUE:
+                directors.append(u)
+                break
+    
+    print(f"   Найдено директоров: {len(directors)}")
+    
+    if not directors:
+        print("   ВНИМАНИЕ: Не найдено ни одного пользователя.")
+        print("   Проверь:")
+        print(f"     - Custom Property называется '{CUSTOM_PROPERTY_NAME}'")
+        print(f"     - Значение '{CUSTOM_PROPERTY_VALUE}' назначено пользователям в QMC")
+        sys.exit(0)
+    
+    return directors
+
+
+def get_capacity_usage():
+    """Получает данные потребления Analyzer Capacity. Пробует разные endpoint'ы."""
+    print(f"[2/3] Получаем данные потребления Analyzer Capacity...")
+    
+    # Список endpoint'ов в порядке приоритета (зависит от версии QSE)
+    endpoints = [
+        "license/analyzertimeaccessusage/full",
+        "license/loginaccessusage/full",
+        "license/analyzeraccesstype/full",
+    ]
+    
+    for ep in endpoints:
+        response = qrs_get(ep)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"   Endpoint сработал: /qrs/{ep}")
+            print(f"   Записей о потреблении: {len(data)}")
+            return data, ep
+    
+    print(f"   ОШИБКА: ни один endpoint не сработал.")
+    print(f"   Проверь права учётки {USER_DIRECTORY}\\{USER_ID} в QMC.")
+    sys.exit(1)
+
+
+def aggregate_usage(directors, usage_records):
+    """Сводит потребление по директорам за текущий и прошлый месяц."""
+    print(f"[3/3] Анализируем данные...")
+    
+    director_ids = {u["id"]: f"{u['userDirectory']}\\{u['userId']}" for u in directors}
+    director_names = {u["id"]: u.get("name", u.get("userId", "")) for u in directors}
+    
+    now = datetime.utcnow()
+    month_start = datetime(now.year, now.month, 1)
+    prev_month_start = (month_start - timedelta(days=1)).replace(day=1)
+    
+    usage = {}
+    
+    for record in usage_records:
+        # Структура record может отличаться - пробуем оба варианта
+        user_obj = record.get("user", {})
+        user_id = user_obj.get("id") if isinstance(user_obj, dict) else None
+        
+        if not user_id or user_id not in director_ids:
+            continue
+        
+        used_str = record.get("used") or record.get("usedTime") or record.get("loggedDate")
+        if not used_str:
+            continue
+        
+        try:
+            used_time = datetime.fromisoformat(used_str.replace("Z", "+00:00")).replace(tzinfo=None)
+        except (ValueError, AttributeError):
+            continue
+        
+        minutes = record.get("minutesUsed", record.get("minutes", 1))
+        
+        if user_id not in usage:
+            usage[user_id] = {
+                "current": 0,
+                "previous": 0,
+                "name": director_names[user_id],
+                "login": director_ids[user_id],
+                "last_login": None
+            }
+        
+        if used_time >= month_start:
+            usage[user_id]["current"] += minutes
+        elif used_time >= prev_month_start:
+            usage[user_id]["previous"] += minutes
+        
+        if not usage[user_id]["last_login"] or used_time > usage[user_id]["last_login"]:
+            usage[user_id]["last_login"] = used_time
+    
+    # Добавляем тех, кто вообще не использовал
+    for uid, login in director_ids.items():
+        if uid not in usage:
+            usage[uid] = {
+                "current": 0,
+                "previous": 0,
+                "name": director_names[uid],
+                "login": login,
+                "last_login": None
+            }
+    
+    return usage, month_start, prev_month_start
+
+
+def print_report(usage, month_start, prev_month_start):
+    """Печатает отчёт в консоль."""
+    print("\n" + "=" * 100)
+    print("ПОТРЕБЛЕНИЕ ANALYZER CAPACITY ДИРЕКТОРАМИ ФИЛИАЛОВ".center(100))
+    print(f"Текущий месяц: {month_start.strftime('%B %Y')} | Прошлый месяц: {prev_month_start.strftime('%B %Y')}".center(100))
+    print("=" * 100)
+    print(f"{'Логин':<35} {'ФИО':<30} {'Пред. мес':>12} {'Тек. мес':>12} {'Посл. вход':>12}")
+    print("-" * 100)
+    
+    sorted_users = sorted(usage.values(), key=lambda x: -x["current"])
+    
+    total_prev = 0
+    total_curr = 0
+    active_users = 0
+    inactive_users = 0
+    
+    for u in sorted_users:
+        last = u["last_login"].strftime("%d.%m.%Y") if u["last_login"] else "никогда"
+        active = u["current"] > 0
+        marker = " " if active else "*"
+        
+        print(f"{marker}{u['login']:<34} {u['name'][:29]:<30} {u['previous']:>10} м {u['current']:>10} м {last:>12}")
+        
+        total_prev += u["previous"]
+        total_curr += u["current"]
+        if active:
+            active_users += 1
+        else:
+            inactive_users += 1
+    
+    print("-" * 100)
+    print(f"{'ИТОГО:':<66} {total_prev:>10} м {total_curr:>10} м")
+    print(f"{'В часах:':<66} {total_prev/60:>10.1f} ч {total_curr/60:>10.1f} ч")
+    print()
+    print(f"  Активных в текущем месяце: {active_users}")
+    print(f"  Не использовали лицензию:  {inactive_users}  (отмечены * в начале строки)")
+    print("=" * 100)
+
+
+def save_csv(usage, month_start, prev_month_start):
+    """Сохраняет отчёт в CSV."""
+    filename = f"capacity_directors_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+    filepath = os.path.join(OUTPUT_DIR, filename)
+    
+    with open(filepath, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f, delimiter=";")
+        writer.writerow([
+            "Логин",
+            "ФИО",
+            f"Прошлый месяц ({prev_month_start.strftime('%m.%Y')}), мин",
+            f"Текущий месяц ({month_start.strftime('%m.%Y')}), мин",
+            "Текущий месяц, часы",
+            "Последний вход",
+            "Использовал в текущем месяце"
+        ])
+        
+        sorted_users = sorted(usage.values(), key=lambda x: -x["current"])
+        
+        for u in sorted_users:
+            last = u["last_login"].strftime("%d.%m.%Y %H:%M") if u["last_login"] else ""
+            writer.writerow([
+                u["login"],
+                u["name"],
+                u["previous"],
+                u["current"],
+                round(u["current"] / 60, 2),
+                last,
+                "Да" if u["current"] > 0 else "Нет"
+            ])
+    
+    print(f"\nCSV сохранён: {filepath}")
+    return filepath
+
+
+def main():
+    print("=" * 100)
+    print(f"  Capacity Analyzer Usage Report  |  {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+    print(f"  Сервер: {QLIK_HOST}")
+    print("=" * 100)
+    print()
+    
+    directors = get_branch_directors()
+    usage_records, endpoint_used = get_capacity_usage()
+    usage, month_start, prev_month_start = aggregate_usage(directors, usage_records)
+    
+    print_report(usage, month_start, prev_month_start)
+    save_csv(usage, month_start, prev_month_start)
+    
+    print("\nГотово.")
+
+
+if __name__ == "__main__":
+    main()
