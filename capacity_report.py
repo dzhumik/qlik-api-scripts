@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Capacity License Report - Excel Output
-Halyk Bank, DTPD - Self-Service BI
-
 Создаёт Excel-файл с двумя листами:
 1. "Присвоения" - история присвоений Analyzer-лицензий (помесячно)
 2. "Потребление" - реальное потребление Capacity-минут (помесячно по пользователям)
