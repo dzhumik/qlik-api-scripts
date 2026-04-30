@@ -1,278 +1,132 @@
-# -*- coding: utf-8 -*-
-"""
-Capacity Analyzer Usage - Monthly Report
-Halyk Bank, DTPD - Self-Service BI
+PS C:\Users\00060961\Desktop\capacity_report> & C:\Users\00060961\AppData\Local\Programs\Python\Python39\python.exe c:/Users/00060961/Desktop/capacity_report/diagnostic.py
+================================================================================
+ВСЕГО ЗАПИСЕЙ: 462
+================================================================================
 
-Скрипт выгружает потребление Analyzer Capacity по всем пользователям
-с разбивкой по месяцам (по умолчанию: март и апрель 2026).
-
-Положить рядом с create_master_measures.py - использует ту же папку certificate/
-"""
-
-import requests
-from datetime import datetime
-from pathlib import Path
-import urllib3
-import csv
-import sys
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# =====================================================================
-# НАСТРОЙКИ
-# =====================================================================
-
-# Qlik Sense Enterprise
-QLIK_SERVER = "fdata1a003.halykbank.nb"
-QLIK_USER   = "UserDirectory=UNIVERSAL;UserId=00060961"
-
-# Сертификаты - папка certificate/ рядом со скриптом
-BASE_DIR    = Path(__file__).parent
-CLIENT_CERT = str(BASE_DIR / "certificate" / "client.pem")
-CLIENT_KEY  = str(BASE_DIR / "certificate" / "client_key.pem")
-ROOT_CERT   = str(BASE_DIR / "certificate" / "root.pem")
-
-# Какие месяцы анализируем (год, месяц)
-MONTHS_TO_REPORT = [
-    (2026, 3),   # Март
-    (2026, 4),   # Апрель
-]
-
-# XRF-ключ
-XRFKEY = "0123456789abcdef"
-
-# =====================================================================
-
-HEADERS = {
-    "X-Qlik-Xrfkey": XRFKEY,
-    "X-Qlik-User": QLIK_USER,
-    "Content-Type": "application/json"
-}
-PARAMS = {"xrfkey": XRFKEY}
-
-QLIK_URL = f"https://{QLIK_SERVER}:4242/qrs"
-
-MONTH_NAMES = {
-    1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель",
-    5: "Май", 6: "Июнь", 7: "Июль", 8: "Август",
-    9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь"
+--- ПЕРВАЯ ЗАПИСЬ (полный JSON) ---
+{
+  "id": "8c58a2d6-569a-43e8-907f-22440d0b4c42",
+  "createdDate": "2026-04-01T04:17:32.801Z",
+  "modifiedDate": "2026-04-01T04:17:32.801Z",
+  "modifiedByUserName": "KZ\\00040795",
+  "user": {
+    "id": "dcb224f2-20a3-4229-994b-8322d228eab5",
+    "userId": "00040795",
+    "userDirectory": "KZ",
+    "userDirectoryConnectorName": "KZ",
+    "name": "Тукенов Салим",
+    "privileges": null
+  },
+  "useStopTime": "2026-04-01T04:23:32.790Z",
+  "sessions": [
+    {
+      "id": "10291790-b0d8-44fd-93e1-b28b2adea448",
+      "createdDate": "2026-04-01T04:17:32.801Z",
+      "modifiedDate": "2026-04-01T04:17:32.801Z",
+      "modifiedByUserName": "KZ\\00040795",
+      "sessionID": "a20c61e2-3341-4265-a6d8-772424b96fbb",
+      "latestActivity": "2026-04-01T04:17:32.790Z",
+      "serverNodeConfigurationId": "d0b38986-0f4a-48d8-806a-fb50aee81aca",
+      "schemaPath": "License.AnalyzerTimeAccessUsage.Session"
+    }
+  ],
+  "analyzerTimeAccessType": {
+    "id": "e4f52bb9-b33d-49d0-ba65-cdc71323d94c",
+    "name": "default",
+    "privileges": null
+  },
+  "useStartTime": "2026-04-01T04:17:32.790Z",
+  "latestActivity": "2026-04-01T04:17:32.790Z",
+  "hostName": "::ffff:10.38.2.76",
+  "serverNodeConfigurationId": "d0b38986-0f4a-48d8-806a-fb50aee81aca",
+  "privileges": null,
+  "schemaPath": "License.AnalyzerTimeAccessUsage"
 }
 
+--- ВТОРАЯ ЗАПИСЬ ---
+{
+  "id": "2fa37ac6-d93f-449f-8d79-2dbcba47fe05",
+  "createdDate": "2026-04-01T04:27:51.068Z",
+  "modifiedDate": "2026-04-01T04:27:51.068Z",
+  "modifiedByUserName": "KZ\\00040795",
+  "user": {
+    "id": "dcb224f2-20a3-4229-994b-8322d228eab5",
+    "userId": "00040795",
+    "userDirectory": "KZ",
+    "userDirectoryConnectorName": "KZ",
+    "name": "Тукенов Салим",
+    "privileges": null
+  },
+  "useStopTime": "2026-04-01T04:33:51.068Z",
+  "sessions": [
+    {
+      "id": "18a2c37f-31ff-411a-8ffe-0060853511ef",
+      "createdDate": "2026-04-01T04:27:51.068Z",
+      "modifiedDate": "2026-04-01T04:27:51.068Z",
+      "modifiedByUserName": "KZ\\00040795",
+      "sessionID": "a20c61e2-3341-4265-a6d8-772424b96fbb",
+      "latestActivity": "2026-04-01T04:27:51.068Z",
+      "serverNodeConfigurationId": "d0b38986-0f4a-48d8-806a-fb50aee81aca",
+      "schemaPath": "License.AnalyzerTimeAccessUsage.Session"
+    }
+  ],
+  "analyzerTimeAccessType": {
+    "id": "e4f52bb9-b33d-49d0-ba65-cdc71323d94c",
+    "name": "default",
+    "privileges": null
+  },
+  "useStartTime": "2026-04-01T04:27:51.068Z",
+  "latestActivity": "2026-04-01T04:27:51.068Z",
+  "hostName": "::ffff:10.38.2.76",
+  "serverNodeConfigurationId": "d0b38986-0f4a-48d8-806a-fb50aee81aca",
+  "privileges": null,
+  "schemaPath": "License.AnalyzerTimeAccessUsage"
+}
 
-def qrs_get(endpoint, extra_params=None):
-    url = f"{QLIK_URL}/{endpoint}"
-    params = dict(PARAMS)
-    if extra_params:
-        params.update(extra_params)
-    
-    try:
-        response = requests.get(
-            url,
-            headers=HEADERS,
-            params=params,
-            cert=(CLIENT_CERT, CLIENT_KEY),
-            verify=ROOT_CERT,
-            timeout=60
-        )
-        return response
-    except requests.exceptions.SSLError as e:
-        print(f"\n[SSL ERROR] Проверь сертификаты в папке certificate/")
-        print(f"  Подробности: {e}")
-        sys.exit(1)
-    except requests.exceptions.ConnectionError as e:
-        print(f"\n[CONNECTION ERROR] Не могу достучаться до {QLIK_SERVER}:4242")
-        print(f"  Подробности: {e}")
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"\n[CERTIFICATE NOT FOUND] {e}")
-        print(f"  Проверь, что файлы лежат в: {BASE_DIR / 'certificate'}")
-        sys.exit(1)
+--- ТРЕТЬЯ ЗАПИСЬ ---
+{
+  "id": "c62955bf-5baa-43f6-841e-a6fc8e6a96f5",
+  "createdDate": "2026-04-01T04:35:30.199Z",
+  "modifiedDate": "2026-04-01T04:35:30.199Z",
+  "modifiedByUserName": "KZ\\00040795",
+  "user": {
+    "id": "dcb224f2-20a3-4229-994b-8322d228eab5",
+    "userId": "00040795",
+    "userDirectory": "KZ",
+    "userDirectoryConnectorName": "KZ",
+    "name": "Тукенов Салим",
+    "privileges": null
+  },
+  "useStopTime": "2026-04-01T04:41:30.199Z",
+  "sessions": [
+    {
+      "id": "4f280c8e-f298-4b52-8ca9-32092d49ce84",
+      "createdDate": "2026-04-01T04:35:30.199Z",
+      "modifiedDate": "2026-04-01T04:35:30.199Z",
+      "modifiedByUserName": "KZ\\00040795",
+      "sessionID": "a20c61e2-3341-4265-a6d8-772424b96fbb",
+      "latestActivity": "2026-04-01T04:35:30.199Z",
+      "serverNodeConfigurationId": "d0b38986-0f4a-48d8-806a-fb50aee81aca",
+      "schemaPath": "License.AnalyzerTimeAccessUsage.Session"
+    }
+  ],
+  "analyzerTimeAccessType": {
+    "id": "e4f52bb9-b33d-49d0-ba65-cdc71323d94c",
+    "name": "default",
+    "privileges": null
+  },
+  "useStartTime": "2026-04-01T04:35:30.199Z",
+  "latestActivity": "2026-04-01T04:35:30.199Z",
+  "hostName": "::ffff:10.38.2.76",
+  "serverNodeConfigurationId": "d0b38986-0f4a-48d8-806a-fb50aee81aca",
+  "privileges": null,
+  "schemaPath": "License.AnalyzerTimeAccessUsage"
+}
 
+--- КЛЮЧИ ВЕРХНЕГО УРОВНЯ ---
+['id', 'createdDate', 'modifiedDate', 'modifiedByUserName', 'user', 'useStopTime', 'sessions', 'analyzerTimeAccessType', 'useStartTime', 'latestActivity', 'hostName', 'serverNodeConfigurationId', 'privileges', 'schemaPath']
 
-def get_capacity_usage():
-    print(f"[1/2] Получаем данные потребления Analyzer Capacity...")
-    
-    # Пробуем несколько endpoint'ов - в разных версиях QSE называются по-разному
-    endpoints = [
-        "license/analyzertimeaccessusage/full",
-        "license/loginaccessusage/full",
-    ]
-    
-    for ep in endpoints:
-        response = qrs_get(ep)
-        if response.status_code == 200:
-            data = response.json()
-            print(f"  Endpoint: /qrs/{ep}")
-            print(f"  Записей о потреблении: {len(data)}")
-            return data
-        else:
-            print(f"  Endpoint /qrs/{ep} вернул {response.status_code}")
-    
-    print(f"  ОШИБКА: ни один endpoint не сработал.")
-    print(f"  Возможно, у учётки {QLIK_USER} нет прав RootAdmin.")
-    sys.exit(1)
+[OK] Первые 5 записей сохранены в: c:\Users\00060961\Desktop\capacity_report\diagnostic_dump.json
 
-
-def aggregate_by_month(usage_records, months_to_report):
-    print(f"[2/2] Агрегируем данные по месяцам...")
-    
-    # Структура: {(year, month): {user_login: {"name": ..., "minutes": N, "sessions": N}}}
-    monthly_data = {(y, m): {} for y, m in months_to_report}
-    
-    months_set = set(months_to_report)
-    
-    for record in usage_records:
-        user_obj = record.get("user", {})
-        if not isinstance(user_obj, dict):
-            continue
-        
-        user_dir = user_obj.get("userDirectory", "")
-        user_id = user_obj.get("userId", "")
-        user_name = user_obj.get("name") or user_id
-        login = f"{user_dir}\\{user_id}" if user_dir else user_id
-        
-        if not login:
-            continue
-        
-        used_str = record.get("used") or record.get("usedTime") or record.get("loggedDate")
-        if not used_str:
-            continue
-        
-        try:
-            used_time = datetime.fromisoformat(used_str.replace("Z", "+00:00")).replace(tzinfo=None)
-        except (ValueError, AttributeError):
-            continue
-        
-        key = (used_time.year, used_time.month)
-        if key not in months_set:
-            continue
-        
-        minutes = record.get("minutesUsed", record.get("minutes", 1))
-        
-        if login not in monthly_data[key]:
-            monthly_data[key][login] = {
-                "name": user_name,
-                "minutes": 0,
-                "sessions": 0,
-                "last_login": None
-            }
-        
-        monthly_data[key][login]["minutes"] += minutes
-        monthly_data[key][login]["sessions"] += 1
-        
-        if not monthly_data[key][login]["last_login"] or used_time > monthly_data[key][login]["last_login"]:
-            monthly_data[key][login]["last_login"] = used_time
-    
-    return monthly_data
-
-
-def print_report(monthly_data):
-    print()
-    
-    for (year, month), users in monthly_data.items():
-        month_name = MONTH_NAMES[month]
-        print("=" * 110)
-        print(f"  {month_name} {year} ".center(110, "="))
-        print("=" * 110)
-        
-        if not users:
-            print(f"  Нет данных за этот период")
-            print()
-            continue
-        
-        print(f"  {'Логин':<35} {'ФИО':<35} {'Минут':>10} {'Сессий':>10} {'Посл.вход':>12}")
-        print("-" * 110)
-        
-        sorted_users = sorted(users.items(), key=lambda x: -x[1]["minutes"])
-        
-        total_minutes = 0
-        total_sessions = 0
-        
-        for login, data in sorted_users:
-            last = data["last_login"].strftime("%d.%m.%Y") if data["last_login"] else ""
-            print(f"  {login:<35} {data['name'][:34]:<35} {data['minutes']:>8} m {data['sessions']:>10} {last:>12}")
-            total_minutes += data["minutes"]
-            total_sessions += data["sessions"]
-        
-        print("-" * 110)
-        print(f"  {'ИТОГО:':<71} {total_minutes:>8} m {total_sessions:>10}")
-        print(f"  {'В часах:':<71} {total_minutes/60:>8.1f} h")
-        print(f"  Уникальных пользователей: {len(users)}")
-        print()
-
-
-def save_csv(monthly_data):
-    filename = f"capacity_monthly_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
-    filepath = BASE_DIR / filename
-    
-    with open(filepath, "w", newline="", encoding="utf-8-sig") as f:
-        writer = csv.writer(f, delimiter=";")
-        writer.writerow([
-            "Месяц",
-            "Год",
-            "Логин",
-            "ФИО",
-            "Минут",
-            "Часов",
-            "Сессий",
-            "Последний вход"
-        ])
-        
-        for (year, month), users in monthly_data.items():
-            month_name = MONTH_NAMES[month]
-            sorted_users = sorted(users.items(), key=lambda x: -x[1]["minutes"])
-            
-            for login, data in sorted_users:
-                last = data["last_login"].strftime("%d.%m.%Y %H:%M") if data["last_login"] else ""
-                writer.writerow([
-                    month_name,
-                    year,
-                    login,
-                    data["name"],
-                    data["minutes"],
-                    round(data["minutes"] / 60, 2),
-                    data["sessions"],
-                    last
-                ])
-    
-    print(f"CSV сохранён: {filepath}")
-    return filepath
-
-
-def print_summary(monthly_data):
-    print("=" * 110)
-    print("  СВОДКА ПО МЕСЯЦАМ".center(110))
-    print("=" * 110)
-    print(f"  {'Месяц':<20} {'Пользователей':>15} {'Минут':>15} {'Часов':>15} {'Сессий':>15}")
-    print("-" * 110)
-    
-    for (year, month), users in monthly_data.items():
-        month_name = f"{MONTH_NAMES[month]} {year}"
-        total_min = sum(u["minutes"] for u in users.values())
-        total_ses = sum(u["sessions"] for u in users.values())
-        print(f"  {month_name:<20} {len(users):>15} {total_min:>15} {total_min/60:>15.1f} {total_ses:>15}")
-    
-    print("=" * 110)
-
-
-def main():
-    print("=" * 110)
-    print(f"  Capacity Analyzer Usage - Monthly Report  |  {datetime.now().strftime('%d.%m.%Y %H:%M')}")
-    print(f"  Сервер: {QLIK_SERVER}")
-    print(f"  Период: {', '.join(f'{MONTH_NAMES[m]} {y}' for y, m in MONTHS_TO_REPORT)}")
-    print("=" * 110)
-    print()
-    
-    usage_records = get_capacity_usage()
-    monthly_data = aggregate_by_month(usage_records, MONTHS_TO_REPORT)
-    
-    print_report(monthly_data)
-    print_summary(monthly_data)
-    print()
-    save_csv(monthly_data)
-    
-    print("\nГотово.")
-
-
-if __name__ == "__main__":
-    main()
+Готово.
+PS C:\Users\00060961\Desktop\capacity_report>  
