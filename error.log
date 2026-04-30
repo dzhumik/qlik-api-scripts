@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Capacity Analyzer Usage - Branch Directors Report
+Capacity Analyzer Usage - Monthly Report
 Halyk Bank, DTPD - Self-Service BI
 
-Скрипт получает список пользователей с Custom Property UserGroup=branch_directors
-и выгружает их потребление Analyzer Capacity (минуты) за текущий и прошлый месяц.
+Скрипт выгружает потребление Analyzer Capacity по всем пользователям
+с разбивкой по месяцам (по умолчанию: март и апрель 2026).
 
 Положить рядом с create_master_measures.py - использует ту же папку certificate/
 """
 
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 import urllib3
 import csv
@@ -26,15 +26,17 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 QLIK_SERVER = "fdata1a003.halykbank.nb"
 QLIK_USER   = "UserDirectory=UNIVERSAL;UserId=00060961"
 
-# Сертификаты (валидны до 2031) - папка certificate/ рядом со скриптом
+# Сертификаты - папка certificate/ рядом со скриптом
 BASE_DIR    = Path(__file__).parent
 CLIENT_CERT = str(BASE_DIR / "certificate" / "client.pem")
 CLIENT_KEY  = str(BASE_DIR / "certificate" / "client_key.pem")
 ROOT_CERT   = str(BASE_DIR / "certificate" / "root.pem")
 
-# Custom Property для фильтрации директоров
-CUSTOM_PROPERTY_NAME  = "UserGroup"
-CUSTOM_PROPERTY_VALUE = "branch_directors"
+# Какие месяцы анализируем (год, месяц)
+MONTHS_TO_REPORT = [
+    (2026, 3),   # Март
+    (2026, 4),   # Апрель
+]
 
 # XRF-ключ
 XRFKEY = "0123456789abcdef"
@@ -49,6 +51,12 @@ HEADERS = {
 PARAMS = {"xrfkey": XRFKEY}
 
 QLIK_URL = f"https://{QLIK_SERVER}:4242/qrs"
+
+MONTH_NAMES = {
+    1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель",
+    5: "Май", 6: "Июнь", 7: "Июль", 8: "Август",
+    9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь"
+}
 
 
 def qrs_get(endpoint, extra_params=None):
@@ -81,40 +89,8 @@ def qrs_get(endpoint, extra_params=None):
         sys.exit(1)
 
 
-def get_branch_directors():
-    print(f"[1/3] Получаем директоров филиалов (Custom Property {CUSTOM_PROPERTY_NAME}={CUSTOM_PROPERTY_VALUE})...")
-    
-    filter_str = f"customProperties.value eq '{CUSTOM_PROPERTY_VALUE}'"
-    response = qrs_get("user/full", {"filter": filter_str})
-    
-    if response.status_code != 200:
-        print(f"  Ошибка {response.status_code}: {response.text[:300]}")
-        sys.exit(1)
-    
-    users = response.json()
-    
-    # Точная фильтрация по имени Custom Property
-    directors = []
-    for u in users:
-        for cp in u.get("customProperties", []):
-            cp_name = cp.get("definition", {}).get("name", "")
-            cp_value = cp.get("value", "")
-            if cp_name == CUSTOM_PROPERTY_NAME and cp_value == CUSTOM_PROPERTY_VALUE:
-                directors.append(u)
-                break
-    
-    print(f"  Найдено директоров: {len(directors)}")
-    
-    if not directors:
-        print("  ВНИМАНИЕ: Не найдено ни одного пользователя с этим Custom Property.")
-        print(f"  Проверь в QMC: Users -> любой директор -> Custom properties -> {CUSTOM_PROPERTY_NAME}={CUSTOM_PROPERTY_VALUE}")
-        sys.exit(0)
-    
-    return directors
-
-
 def get_capacity_usage():
-    print(f"[2/3] Получаем данные потребления Analyzer Capacity...")
+    print(f"[1/2] Получаем данные потребления Analyzer Capacity...")
     
     # Пробуем несколько endpoint'ов - в разных версиях QSE называются по-разному
     endpoints = [
@@ -137,23 +113,25 @@ def get_capacity_usage():
     sys.exit(1)
 
 
-def aggregate_usage(directors, usage_records):
-    print(f"[3/3] Анализируем данные...")
+def aggregate_by_month(usage_records, months_to_report):
+    print(f"[2/2] Агрегируем данные по месяцам...")
     
-    director_ids = {u["id"]: f"{u['userDirectory']}\\{u['userId']}" for u in directors}
-    director_names = {u["id"]: u.get("name") or u.get("userId", "") for u in directors}
+    # Структура: {(year, month): {user_login: {"name": ..., "minutes": N, "sessions": N}}}
+    monthly_data = {(y, m): {} for y, m in months_to_report}
     
-    now = datetime.utcnow()
-    month_start = datetime(now.year, now.month, 1)
-    prev_month_start = (month_start - timedelta(days=1)).replace(day=1)
-    
-    usage = {}
+    months_set = set(months_to_report)
     
     for record in usage_records:
         user_obj = record.get("user", {})
-        user_id = user_obj.get("id") if isinstance(user_obj, dict) else None
+        if not isinstance(user_obj, dict):
+            continue
         
-        if not user_id or user_id not in director_ids:
+        user_dir = user_obj.get("userDirectory", "")
+        user_id = user_obj.get("userId", "")
+        user_name = user_obj.get("name") or user_id
+        login = f"{user_dir}\\{user_id}" if user_dir else user_id
+        
+        if not login:
             continue
         
         used_str = record.get("used") or record.get("usedTime") or record.get("loggedDate")
@@ -165,125 +143,133 @@ def aggregate_usage(directors, usage_records):
         except (ValueError, AttributeError):
             continue
         
+        key = (used_time.year, used_time.month)
+        if key not in months_set:
+            continue
+        
         minutes = record.get("minutesUsed", record.get("minutes", 1))
         
-        if user_id not in usage:
-            usage[user_id] = {
-                "current": 0,
-                "previous": 0,
-                "name": director_names[user_id],
-                "login": director_ids[user_id],
+        if login not in monthly_data[key]:
+            monthly_data[key][login] = {
+                "name": user_name,
+                "minutes": 0,
+                "sessions": 0,
                 "last_login": None
             }
         
-        if used_time >= month_start:
-            usage[user_id]["current"] += minutes
-        elif used_time >= prev_month_start:
-            usage[user_id]["previous"] += minutes
+        monthly_data[key][login]["minutes"] += minutes
+        monthly_data[key][login]["sessions"] += 1
         
-        if not usage[user_id]["last_login"] or used_time > usage[user_id]["last_login"]:
-            usage[user_id]["last_login"] = used_time
+        if not monthly_data[key][login]["last_login"] or used_time > monthly_data[key][login]["last_login"]:
+            monthly_data[key][login]["last_login"] = used_time
     
-    # Добавляем тех, кто вообще не использовал
-    for uid, login in director_ids.items():
-        if uid not in usage:
-            usage[uid] = {
-                "current": 0,
-                "previous": 0,
-                "name": director_names[uid],
-                "login": login,
-                "last_login": None
-            }
-    
-    return usage, month_start, prev_month_start
+    return monthly_data
 
 
-def print_report(usage, month_start, prev_month_start):
-    print("\n" + "=" * 110)
-    print("ПОТРЕБЛЕНИЕ ANALYZER CAPACITY ДИРЕКТОРАМИ ФИЛИАЛОВ".center(110))
-    print(f"Текущий: {month_start.strftime('%B %Y')}  |  Прошлый: {prev_month_start.strftime('%B %Y')}".center(110))
-    print("=" * 110)
-    print(f"  {'Логин':<35} {'ФИО':<35} {'Пред.мес':>10} {'Тек.мес':>10} {'Посл.вход':>12}")
-    print("-" * 110)
-    
-    sorted_users = sorted(usage.values(), key=lambda x: -x["current"])
-    
-    total_prev = 0
-    total_curr = 0
-    active_users = 0
-    inactive_users = 0
-    
-    for u in sorted_users:
-        last = u["last_login"].strftime("%d.%m.%Y") if u["last_login"] else "никогда"
-        active = u["current"] > 0
-        marker = " " if active else "*"
-        
-        print(f"{marker} {u['login']:<35} {u['name'][:34]:<35} {u['previous']:>8} m {u['current']:>8} m {last:>12}")
-        
-        total_prev += u["previous"]
-        total_curr += u["current"]
-        if active:
-            active_users += 1
-        else:
-            inactive_users += 1
-    
-    print("-" * 110)
-    print(f"  {'ИТОГО:':<71} {total_prev:>8} m {total_curr:>8} m")
-    print(f"  {'В часах:':<71} {total_prev/60:>8.1f} h {total_curr/60:>8.1f} h")
+def print_report(monthly_data):
     print()
-    print(f"  Активных в текущем месяце: {active_users}")
-    print(f"  Не использовали лицензию:  {inactive_users}  (отмечены * слева)")
-    print("=" * 110)
+    
+    for (year, month), users in monthly_data.items():
+        month_name = MONTH_NAMES[month]
+        print("=" * 110)
+        print(f"  {month_name} {year} ".center(110, "="))
+        print("=" * 110)
+        
+        if not users:
+            print(f"  Нет данных за этот период")
+            print()
+            continue
+        
+        print(f"  {'Логин':<35} {'ФИО':<35} {'Минут':>10} {'Сессий':>10} {'Посл.вход':>12}")
+        print("-" * 110)
+        
+        sorted_users = sorted(users.items(), key=lambda x: -x[1]["minutes"])
+        
+        total_minutes = 0
+        total_sessions = 0
+        
+        for login, data in sorted_users:
+            last = data["last_login"].strftime("%d.%m.%Y") if data["last_login"] else ""
+            print(f"  {login:<35} {data['name'][:34]:<35} {data['minutes']:>8} m {data['sessions']:>10} {last:>12}")
+            total_minutes += data["minutes"]
+            total_sessions += data["sessions"]
+        
+        print("-" * 110)
+        print(f"  {'ИТОГО:':<71} {total_minutes:>8} m {total_sessions:>10}")
+        print(f"  {'В часах:':<71} {total_minutes/60:>8.1f} h")
+        print(f"  Уникальных пользователей: {len(users)}")
+        print()
 
 
-def save_csv(usage, month_start, prev_month_start):
-    filename = f"capacity_directors_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+def save_csv(monthly_data):
+    filename = f"capacity_monthly_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
     filepath = BASE_DIR / filename
     
     with open(filepath, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerow([
+            "Месяц",
+            "Год",
             "Логин",
             "ФИО",
-            f"Прошлый месяц ({prev_month_start.strftime('%m.%Y')}), мин",
-            f"Текущий месяц ({month_start.strftime('%m.%Y')}), мин",
-            "Текущий месяц, часы",
-            "Последний вход",
-            "Использовал в текущем месяце"
+            "Минут",
+            "Часов",
+            "Сессий",
+            "Последний вход"
         ])
         
-        sorted_users = sorted(usage.values(), key=lambda x: -x["current"])
-        
-        for u in sorted_users:
-            last = u["last_login"].strftime("%d.%m.%Y %H:%M") if u["last_login"] else ""
-            writer.writerow([
-                u["login"],
-                u["name"],
-                u["previous"],
-                u["current"],
-                round(u["current"] / 60, 2),
-                last,
-                "Да" if u["current"] > 0 else "Нет"
-            ])
+        for (year, month), users in monthly_data.items():
+            month_name = MONTH_NAMES[month]
+            sorted_users = sorted(users.items(), key=lambda x: -x[1]["minutes"])
+            
+            for login, data in sorted_users:
+                last = data["last_login"].strftime("%d.%m.%Y %H:%M") if data["last_login"] else ""
+                writer.writerow([
+                    month_name,
+                    year,
+                    login,
+                    data["name"],
+                    data["minutes"],
+                    round(data["minutes"] / 60, 2),
+                    data["sessions"],
+                    last
+                ])
     
-    print(f"\nCSV сохранён: {filepath}")
+    print(f"CSV сохранён: {filepath}")
     return filepath
+
+
+def print_summary(monthly_data):
+    print("=" * 110)
+    print("  СВОДКА ПО МЕСЯЦАМ".center(110))
+    print("=" * 110)
+    print(f"  {'Месяц':<20} {'Пользователей':>15} {'Минут':>15} {'Часов':>15} {'Сессий':>15}")
+    print("-" * 110)
+    
+    for (year, month), users in monthly_data.items():
+        month_name = f"{MONTH_NAMES[month]} {year}"
+        total_min = sum(u["minutes"] for u in users.values())
+        total_ses = sum(u["sessions"] for u in users.values())
+        print(f"  {month_name:<20} {len(users):>15} {total_min:>15} {total_min/60:>15.1f} {total_ses:>15}")
+    
+    print("=" * 110)
 
 
 def main():
     print("=" * 110)
-    print(f"  Capacity Analyzer Usage Report  |  {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+    print(f"  Capacity Analyzer Usage - Monthly Report  |  {datetime.now().strftime('%d.%m.%Y %H:%M')}")
     print(f"  Сервер: {QLIK_SERVER}")
-    print(f"  Пользователь: {QLIK_USER}")
+    print(f"  Период: {', '.join(f'{MONTH_NAMES[m]} {y}' for y, m in MONTHS_TO_REPORT)}")
     print("=" * 110)
     print()
     
-    directors = get_branch_directors()
     usage_records = get_capacity_usage()
-    usage, month_start, prev_month_start = aggregate_usage(directors, usage_records)
+    monthly_data = aggregate_by_month(usage_records, MONTHS_TO_REPORT)
     
-    print_report(usage, month_start, prev_month_start)
-    save_csv(usage, month_start, prev_month_start)
+    print_report(monthly_data)
+    print_summary(monthly_data)
+    print()
+    save_csv(monthly_data)
     
     print("\nГотово.")
 
